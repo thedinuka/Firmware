@@ -67,7 +67,7 @@
 #include <uORB/topics/vehicle_gps_position.h>
 #include <mavlink/mavlink_log.h>
 #include <poll.h>
-#include <systemlib/geo/geo.h>
+//#include <systemlib/geo/geo.h>   //dinuka
 #include <systemlib/err.h>
 #include <systemlib/systemlib.h>
 
@@ -209,8 +209,8 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 	memset(&vehicle_status, 0, sizeof(vehicle_status)); /* make sure that baroINITdone = false */
 	struct vehicle_vicon_position_s vicon_pos;
 	memset(&vicon_pos, 0, sizeof(vicon_pos));
-	struct actuator_controls_effective_s act_eff;
-	memset(&act_eff, 0, sizeof(act_eff));
+	//struct actuator_controls_effective_s act_eff;   //dinuka
+	//memset(&act_eff, 0, sizeof(act_eff));	//dinuka
 	struct vehicle_gps_position_s gps;
 	memset(&gps, 0, sizeof(gps));
 	struct vehicle_local_position_s local_pos_est;
@@ -223,7 +223,7 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 	int sub_params = orb_subscribe(ORB_ID(parameter_update));
 	int vehicle_attitude_sub = orb_subscribe(ORB_ID(vehicle_attitude));
 	int vicon_pos_sub = orb_subscribe(ORB_ID(vehicle_vicon_position));
-	int actuator_eff_sub = orb_subscribe(ORB_ID(actuator_controls_effective_0));
+	//int actuator_eff_sub = orb_subscribe(ORB_ID(actuator_controls_effective_0));  //dinuka
 	int vehicle_gps_sub = orb_subscribe(ORB_ID(vehicle_gps_position));
 	int vehicle_status_sub = orb_subscribe(ORB_ID(vehicle_status));
 
@@ -263,6 +263,7 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 
 	if (flag_use_gps) {
 		mavlink_log_info(mavlink_fd, "[pos_est_mc] GPS locked");
+		warnx("trying GPS");
 		/* wait until gps signal turns valid, only then can we initialize the projection */
 
 		// XXX magic number
@@ -329,6 +330,7 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 
 	} else {
 		mavlink_log_info(mavlink_fd, "[pos_est_mc] I'm NOT using GPS - I use VICON");
+		warnx("vicon updates found");
 		/* onboard calculated position estimations */
 	}
 	thread_running = true;
@@ -364,9 +366,10 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 				/* new vicon position */
 				orb_copy(ORB_ID(vehicle_vicon_position), vicon_pos_sub, &vicon_pos);
 				posX = vicon_pos.x;
-				posY = vicon_pos.y;
+				posY = 1.2345;//vicon_pos.y;
 				posZ = vicon_pos.z;
 				vicon_updated = true; /* set flag for vicon update */
+				//warnx("vicon updated x = %3.3f , y = %3.3f, z = %3.3f", vicon_pos.x, posY, posZ);//dinuka
 			} /* end of poll call for vicon updates */
 			gps_updated = false;
 			if (fds2[0].revents & POLLIN) {
@@ -381,7 +384,7 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 			}
 
 			/* Main estimator loop */
-			orb_copy(ORB_ID(actuator_controls_effective_0), actuator_eff_sub, &act_eff);
+			//orb_copy(ORB_ID(actuator_controls_effective_0), actuator_eff_sub, &act_eff);
 			orb_copy(ORB_ID(vehicle_attitude), vehicle_attitude_sub, &att);
 			orb_copy(ORB_ID(vehicle_status), vehicle_status_sub, &vehicle_status);
 			orb_copy(ORB_ID(sensor_combined), sensor_sub, &sensor);
@@ -437,6 +440,8 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 					local_pos_est.z = x_z_aposteriori_k[0];
 					local_pos_est.vz = x_z_aposteriori_k[1];
 					local_pos_est.timestamp = hrt_absolute_time();
+					local_pos_est.xy_valid = 1; 
+					local_pos_est.z_valid = 1;
 					if ((isfinite(x_x_aposteriori_k[0])) && (isfinite(x_x_aposteriori_k[1])) && (isfinite(x_y_aposteriori_k[0])) && (isfinite(x_y_aposteriori_k[1])) && (isfinite(x_z_aposteriori_k[0])) && (isfinite(x_z_aposteriori_k[1]))) {
 						/* publish local position estimate */
 						if (local_pos_est_pub > 0) {
@@ -496,10 +501,13 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 				local_pos_est.z = x_z_aposteriori_k[0];
 				local_pos_est.vz = x_z_aposteriori_k[1];
 				local_pos_est.timestamp = hrt_absolute_time();
+				//warnx("lp updated x = %f , y = %f, z = %f", posX, posY, posZ);//dinuka
+				//warnx("x = %f , vx = %f , y = %f, vy = %f z = %f, vz = %f", local_pos_est.x, local_pos_est.vx,local_pos_est.y, local_pos_est.vy, local_pos_est.z, local_pos_est.vz);	//dinuka
 				if ((isfinite(x_x_aposteriori_k[0])) && (isfinite(x_x_aposteriori_k[1])) && (isfinite(x_y_aposteriori_k[0])) && (isfinite(x_y_aposteriori_k[1])) && (isfinite(x_z_aposteriori_k[0])) && (isfinite(x_z_aposteriori_k[1]))){
-					if(local_pos_est_pub > 0)
+					if(local_pos_est_pub > 0){
 						orb_publish(ORB_ID(vehicle_local_position), local_pos_est_pub, &local_pos_est);
-					else
+						//warnx("local_position advertised");
+					} else
 						local_pos_est_pub = orb_advertise(ORB_ID(vehicle_local_position), &local_pos_est);
 					//char buf[0xff]; sprintf(buf,"[pos_est_mc] x:%f, y:%f, z:%f",x_x_aposteriori_k[0],x_y_aposteriori_k[0],x_z_aposteriori_k[0]);
 					//mavlink_log_info(mavlink_fd, buf);

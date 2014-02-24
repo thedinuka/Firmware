@@ -895,10 +895,15 @@ int commander_thread_main(int argc, char *argv[])
 			/* position changed */
 			orb_copy(ORB_ID(vehicle_local_position), local_position_sub, &local_position);
 		}
-
+		
 		/* update condition_local_position_valid and condition_local_altitude_valid */
+		//warnx("local pos. current time = %lf , pos_update at= %lf", double(hrt_absolute_time() - local_position.timestamp),  double(local_position.timestamp)); //dinuka
+		//warnx("condition_local_position_valid %d", status.condition_local_position_valid);
+		//warnx("xy_valid %d", local_position.xy_valid);
+
 		check_valid(local_position.timestamp, POSITION_TIMEOUT, local_position.xy_valid, &(status.condition_local_position_valid), &status_changed);
 		check_valid(local_position.timestamp, POSITION_TIMEOUT, local_position.z_valid, &(status.condition_local_altitude_valid), &status_changed);
+
 
 		if (status.is_rotary_wing && status.condition_local_altitude_valid) {
 			if (status.condition_landed != local_position.landed) {
@@ -1314,7 +1319,9 @@ check_valid(hrt_abstime timestamp, hrt_abstime timeout, bool valid_in, bool *val
 {
 	hrt_abstime t = hrt_absolute_time();
 	bool valid_new = (t < timestamp + timeout && t > timeout && valid_in);
-
+	//if (t > (timestamp + timeout))	//dinuka
+	warnx("local pos timeout. time = %lf , timestamp+tout = %lf validity = %d, valid old = %d ",double(t), double(timestamp) + double(timeout), valid_new, valid_in); //dinuka
+ 	
 	if (*valid_out != valid_new) {
 		*valid_out = valid_new;
 		*changed = true;

@@ -239,6 +239,8 @@ static int multirotor_pos_control_thread_main(int argc, char *argv[])
 
 	thread_running = true;
 
+
+
 	struct multirotor_position_control_params params;
 	struct multirotor_position_control_param_handles params_h;
 	parameters_init(&params_h);
@@ -291,6 +293,34 @@ static int multirotor_pos_control_thread_main(int argc, char *argv[])
 		if (updated) {
 			orb_copy(ORB_ID(vehicle_control_mode), control_mode_sub, &control_mode);
 		}
+
+//****Dinuka-testing
+	if (control_mode.flag_control_altitude_enabled) {
+		warnx("control_altitude_enabled");
+	} else	{
+		warnx("control_altitude_NOT_enabled");
+	}
+	if (control_mode.flag_control_position_enabled) {
+		warnx("control_position_enabled");
+	} else	{
+		warnx("control_position_NOT_enabled");
+	}
+	if (control_mode.flag_control_manual_enabled) {
+		warnx("control_manual_enabled");
+	} else	{
+		warnx("control_manual_NOT_enabled");
+	}
+	if (control_mode.flag_control_velocity_enabled) {
+		warnx("control_velocity_enabled");
+	} else	{
+		warnx("control_velocity_NOT_enabled");
+	}
+	if (control_mode.flag_control_climb_rate_enabled) {
+		warnx("control_climb_rate_enabled");
+	} else	{
+		warnx("control_climb_rate_NOT_enabled");
+	}
+//****Dinuka-testing
 
 		orb_check(global_pos_sp_sub, &updated);
 

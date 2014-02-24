@@ -225,6 +225,8 @@ main_state_transition(struct vehicle_status_s *current_state, main_state_t new_m
 {
 	transition_result_t ret = TRANSITION_DENIED;
 
+	//warnx("checking state transition");   //dinuka	
+	
 	/* only check transition if the new state is actually different from the current one */
 	if (new_main_state == current_state->main_state) {
 		ret = TRANSITION_NOT_CHANGED;
@@ -242,7 +244,7 @@ main_state_transition(struct vehicle_status_s *current_state, main_state_t new_m
 			if (current_state->condition_local_altitude_valid ||
 				current_state->condition_global_position_valid) {
 				ret = TRANSITION_CHANGED;
-			}
+			} else warnx("local alt not valid");  //dinuka
 
 			break;
 
@@ -252,7 +254,7 @@ main_state_transition(struct vehicle_status_s *current_state, main_state_t new_m
 			if (current_state->condition_local_position_valid ||
 				current_state->condition_global_position_valid) {
 				ret = TRANSITION_CHANGED;
-			}
+			} else warnx("local pos not valid"); //dinuka
 
 			break;
 

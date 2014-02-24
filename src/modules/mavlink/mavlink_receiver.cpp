@@ -137,6 +137,7 @@ static double alt0 = 0;
 static void
 handle_message(mavlink_message_t *msg)
 {
+	//warnx("message id %d", msg->msgid);
 	if (msg->msgid == MAVLINK_MSG_ID_COMMAND_LONG) {
 
 		mavlink_command_long_t cmd_mavlink;
@@ -245,7 +246,7 @@ handle_message(mavlink_message_t *msg)
 	if (msg->msgid == MAVLINK_MSG_ID_VICON_POSITION_ESTIMATE) {
 		mavlink_vicon_position_estimate_t pos;
 		mavlink_msg_vicon_position_estimate_decode(msg, &pos);
-
+		//warnx("vicon_pos estimate received and decoded posx = %d", pos.x); //dinuka
 		vicon_position.timestamp = hrt_absolute_time();
 
 		vicon_position.x = pos.x;
