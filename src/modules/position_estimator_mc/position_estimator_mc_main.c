@@ -330,7 +330,7 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 
 	} else {
 		mavlink_log_info(mavlink_fd, "[pos_est_mc] I'm NOT using GPS - I use VICON");
-		warnx("vicon updates found");
+		warnx("vicon updates found");		//dinuka
 		/* onboard calculated position estimations */
 	}
 	thread_running = true;
@@ -366,7 +366,7 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 				/* new vicon position */
 				orb_copy(ORB_ID(vehicle_vicon_position), vicon_pos_sub, &vicon_pos);
 				posX = vicon_pos.x;
-				posY = 1.2345;//vicon_pos.y;
+				posY = vicon_pos.y;
 				posZ = vicon_pos.z;
 				vicon_updated = true; /* set flag for vicon update */
 				//warnx("vicon updated x = %3.3f , y = %3.3f, z = %3.3f", vicon_pos.x, posY, posZ);//dinuka
@@ -384,7 +384,7 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 			}
 
 			/* Main estimator loop */
-			//orb_copy(ORB_ID(actuator_controls_effective_0), actuator_eff_sub, &act_eff);
+			//orb_copy(ORB_ID(actuator_controls_effective_0), actuator_eff_sub, &act_eff);   //dinuka
 			orb_copy(ORB_ID(vehicle_attitude), vehicle_attitude_sub, &att);
 			orb_copy(ORB_ID(vehicle_status), vehicle_status_sub, &vehicle_status);
 			orb_copy(ORB_ID(sensor_combined), sensor_sub, &sensor);
@@ -440,8 +440,7 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 					local_pos_est.z = x_z_aposteriori_k[0];
 					local_pos_est.vz = x_z_aposteriori_k[1];
 					local_pos_est.timestamp = hrt_absolute_time();
-					local_pos_est.xy_valid = 1; 
-					local_pos_est.z_valid = 1;
+
 					if ((isfinite(x_x_aposteriori_k[0])) && (isfinite(x_x_aposteriori_k[1])) && (isfinite(x_y_aposteriori_k[0])) && (isfinite(x_y_aposteriori_k[1])) && (isfinite(x_z_aposteriori_k[0])) && (isfinite(x_z_aposteriori_k[1]))) {
 						/* publish local position estimate */
 						if (local_pos_est_pub > 0) {
@@ -501,6 +500,8 @@ int position_estimator_mc_thread_main(int argc, char *argv[])
 				local_pos_est.z = x_z_aposteriori_k[0];
 				local_pos_est.vz = x_z_aposteriori_k[1];
 				local_pos_est.timestamp = hrt_absolute_time();
+				local_pos_est.xy_valid = 1; //dinuka
+				local_pos_est.z_valid = 1;  //dinuka
 				//warnx("lp updated x = %f , y = %f, z = %f", posX, posY, posZ);//dinuka
 				//warnx("x = %f , vx = %f , y = %f, vy = %f z = %f, vz = %f", local_pos_est.x, local_pos_est.vx,local_pos_est.y, local_pos_est.vy, local_pos_est.z, local_pos_est.vz);	//dinuka
 				if ((isfinite(x_x_aposteriori_k[0])) && (isfinite(x_x_aposteriori_k[1])) && (isfinite(x_y_aposteriori_k[0])) && (isfinite(x_y_aposteriori_k[1])) && (isfinite(x_z_aposteriori_k[0])) && (isfinite(x_z_aposteriori_k[1]))){

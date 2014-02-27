@@ -80,7 +80,7 @@ MODULES		+= modules/attitude_estimator_so3
 MODULES		+= modules/att_pos_estimator_ekf
 MODULES		+= modules/position_estimator_inav
 MODULES		+= examples/flow_position_estimator
-MODULES		+= modules/position_estimator_mc
+MODULES		+= modules/quad_vel_att_estimator_ekf
 
 #
 # Vehicle Control

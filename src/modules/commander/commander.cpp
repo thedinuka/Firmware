@@ -1320,7 +1320,7 @@ check_valid(hrt_abstime timestamp, hrt_abstime timeout, bool valid_in, bool *val
 	hrt_abstime t = hrt_absolute_time();
 	bool valid_new = (t < timestamp + timeout && t > timeout && valid_in);
 	//if (t > (timestamp + timeout))	//dinuka
-	warnx("local pos timeout. time = %lf , timestamp+tout = %lf validity = %d, valid old = %d ",double(t), double(timestamp) + double(timeout), valid_new, valid_in); //dinuka
+	//warnx("local pos timeout. time = %lf , timestamp+tout = %lf validity = %d, valid old = %d ",double(t), double(timestamp) + double(timeout), valid_new, valid_in); //dinuka
  	
 	if (*valid_out != valid_new) {
 		*valid_out = valid_new;
