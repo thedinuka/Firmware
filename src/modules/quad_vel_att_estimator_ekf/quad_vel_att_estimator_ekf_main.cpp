@@ -333,9 +333,10 @@ int quad_vel_att_estimator_ekf_thread_main(int argc, char *argv[])
 
 					//call the kalman filter with measurements, inputs, delta_t and parameter k_1
 					//TODO pass the process noise and measurement noise parameters to the filter
-
+					printf( "a_k = [%3.3f %3.3f] , g_k = [%3.3f %3.3f %3.3f]\n", a_k[0],a_k[1], g_k[0], g_k[1], g_k[2] );
 					quad_8state_kalman(a_k, g_k, dt, ekf_params.gyro_rp, ekf_params.gyro_y, ekf_params.v_xy, ekf_params.gb_rp, ekf_params.gb_y, ekf_params.acc_xy, ekf_params.k_1, x_aposteriori);
-
+					printf( "v_xy = [%3.3f %3.3f] , rpy = [%3.3f %3.3f %3.3f]\n", x_aposteriori[3], x_aposteriori[4], x_aposteriori[0], x_aposteriori[1],x_aposteriori[2] );
+					
 					/* only publish if Euler angles and velocities are finite */
 					if (isfinite(x_aposteriori[0]) && isfinite(x_aposteriori[1]) && isfinite(x_aposteriori[2]) && isfinite(x_aposteriori[3]) && isfinite(x_aposteriori[4])) 
 					{
